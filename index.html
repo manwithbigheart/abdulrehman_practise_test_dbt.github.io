@@ -1,0 +1,2790 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Database Technologies Exam</title>
+    <style>
+      :root {
+        --primary-color: #0056b3;
+        --light-primary: #e9f5ff;
+        --success-green: #28a745;
+        --danger-red: #dc3545;
+        --light-green: #d4edda;
+        --light-red: #f8d7da;
+        --background-color: #f4f7f9;
+        --container-bg: #ffffff;
+        --text-color: #333;
+        --border-color: #dee2e6;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      .main-container {
+        width: 100%;
+        max-width: 800px;
+        background: var(--container-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 30px 40px;
+        text-align: center;
+      }
+
+      h1 {
+        color: var(--primary-color);
+        margin-bottom: 25px;
+      }
+
+      /* Views */
+      #user-details-container,
+      #part-selection-container,
+      #quiz-container,
+      #summary-container {
+        display: none; /* Hide all views initially */
+      }
+
+      /* User Details Form */
+      #user-details-container {
+        display: block;
+      }
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 1em;
+        box-sizing: border-box;
+      }
+      .btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        background-color: var(--primary-color);
+        color: white;
+      }
+      .btn:hover {
+        background-color: #004494;
+        transform: translateY(-2px);
+      }
+      #start-error {
+        color: var(--danger-red);
+        margin-top: 15px;
+        font-weight: 500;
+      }
+
+      /* Part Selection */
+      #part-selection-container h2 {
+        margin-bottom: 20px;
+      }
+      .part-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      /* Quiz Styling */
+      .question-block {
+        margin-bottom: 25px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 20px;
+        text-align: left;
+      }
+      .question-text {
+        font-size: 1.2em;
+        font-weight: 600;
+        margin-bottom: 15px;
+      }
+      pre {
+        background-color: #eef2f5;
+        padding: 15px;
+        border-radius: 5px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: "Courier New", Courier, monospace;
+        border: 1px solid var(--border-color);
+      }
+      .options-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .option {
+        padding: 12px 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s, border-color 0.3s;
+        text-align: left;
+        width: 100%;
+        font-size: 1em;
+        background-color: #fff;
+      }
+      .option:not(:disabled):hover {
+        background-color: var(--light-primary);
+        border-color: var(--primary-color);
+      }
+      .option.correct {
+        background-color: var(--light-green);
+        border-color: var(--success-green);
+        color: #155724;
+        font-weight: bold;
+      }
+      .option.incorrect {
+        background-color: var(--light-red);
+        border-color: var(--danger-red);
+        color: #721c24;
+        font-weight: bold;
+      }
+      .explanation {
+        margin-top: 15px;
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #f0f0f0;
+        border-left: 5px solid var(--primary-color);
+        display: none;
+        text-align: left;
+      }
+      #quiz-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--border-color);
+      }
+      #quiz-header h2 {
+        margin: 0;
+      }
+      #progress-text {
+        font-size: 1.1em;
+        font-weight: 600;
+      }
+
+      /* Summary */
+      #summary-container h2 {
+        color: var(--success-green);
+      }
+      #summary-text {
+        font-size: 1.3em;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <div id="user-details-container">
+        <h1>Database Technologies Exam</h1>
+        <p>Please enter your details to begin.</p>
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="Enter your full name" />
+        </div>
+        <div class="form-group">
+          <label for="mobile">Mobile Number</label>
+          <input
+            type="tel"
+            id="mobile"
+            placeholder="Enter your mobile number"
+          />
+        </div>
+        <button id="start-btn" class="btn">Start Exam</button>
+        <p id="start-error" style="display: none"></p>
+      </div>
+
+      <div id="part-selection-container">
+        <h2 id="welcome-message"></h2>
+        <p>Please select a part to begin the test.</p>
+        <div class="part-buttons">
+          <button class="btn part-btn" data-part="1">Part 1 (Q 1-50)</button>
+          <button class="btn part-btn" data-part="2">Part 2 (Q 51-100)</button>
+          <button class="btn part-btn" data-part="3">Part 3 (Q 101-150)</button>
+          <button class="btn part-btn" data-part="4">Part 4 (Q 151-200)</button>
+        </div>
+      </div>
+
+      <div id="quiz-container">
+        <div id="quiz-header">
+          <h2 id="quiz-title"></h2>
+          <span id="progress-text"></span>
+        </div>
+        <div id="quiz"></div>
+        <button
+          id="show-score-btn"
+          class="btn"
+          style="display: none; margin-top: 20px"
+        >
+          Show My Score
+        </button>
+      </div>
+
+      <div id="summary-container">
+        <h2>Part Complete!</h2>
+        <p id="summary-text"></p>
+        <button id="back-to-parts-btn" class="btn">Choose Another Part</button>
+      </div>
+    </div>
+
+    <script>
+      const allViews = {
+        details: document.getElementById("user-details-container"),
+        parts: document.getElementById("part-selection-container"),
+        quiz: document.getElementById("quiz-container"),
+        summary: document.getElementById("summary-container"),
+      };
+
+      let currentUser = { name: "" };
+      let currentPartData = [];
+      let currentScore = 0;
+      let answeredQuestions = 0;
+      let currentPartNumber = 0;
+
+      const quizData = [
+        // Part 1: Q1-50
+        {
+          part: 1,
+          question:
+            "Q1. Which of the following best describes a Database Management System (DBMS)?",
+          options: [
+            "A. A programming language",
+            "B. A software to manage data in files only",
+            "C. A software to create, manage and query databases",
+            "D. A hardware storage device",
+          ],
+          correct: "C",
+          explanation:
+            "A DBMS is a comprehensive software system designed to create, maintain, and query databases, acting as an interface between the user and the data.",
+        },
+        {
+          part: 1,
+          question: "Q2. In an RDBMS, data is stored in:",
+          options: [
+            "A. Arrays",
+            "B. Tables",
+            "C. Linked lists",
+            "D. Flat files",
+          ],
+          correct: "B",
+          explanation:
+            "The fundamental structure for storing data in a Relational Database Management System (RDBMS) is a table, which consists of rows and columns.",
+        },
+        {
+          part: 1,
+          question: "Q3. Which of the following is NOT a type of DBMS?",
+          options: [
+            "A. Relational",
+            "B. Object Relational",
+            "C. Hierarchical",
+            "D. Compiler-based",
+          ],
+          correct: "D",
+          explanation:
+            "Relational, Object-Relational, and Hierarchical are all established models for DBMS. A compiler is a program that translates code, not a type of database system.",
+        },
+        {
+          part: 1,
+          question:
+            "Q4. Which of the following is an example of NoSQL database?",
+          options: ["A. MySQL", "B. Oracle", "C. MongoDB", "D. PostgreSQL"],
+          correct: "C",
+          explanation:
+            "MongoDB is a popular document-oriented NoSQL database. MySQL, Oracle, and PostgreSQL are all examples of relational databases (RDBMS).",
+        },
+        {
+          part: 1,
+          question: "Q5. Codd’s 12 rules are applicable to:",
+          options: [
+            "A. File systems",
+            "B. RDBMS",
+            "C. NoSQL systems",
+            "D. Object-oriented programming",
+          ],
+          correct: "B",
+          explanation:
+            "Edgar F. Codd defined a set of 12 rules (actually 13, numbered 0 to 12) that a database must obey to be considered truly relational (RDBMS).",
+        },
+        {
+          part: 1,
+          question: "Q6. In DBMS, redundancy means:",
+          options: [
+            "A. Storing the same data multiple times",
+            "B. No data is stored",
+            "C. Normalized data only",
+            "D. Query optimization",
+          ],
+          correct: "A",
+          explanation:
+            "Data redundancy refers to the unnecessary duplication of data in a database, which can lead to inconsistencies and storage inefficiencies.",
+        },
+        {
+          part: 1,
+          question: "Q7. Which normal form removes partial dependency?",
+          options: ["A. 1NF", "B. 2NF", "C. 3NF", "D. BCNF"],
+          correct: "B",
+          explanation:
+            "Second Normal Form (2NF) specifically addresses the removal of partial dependencies, where a non-key attribute depends on only a part of a composite primary key.",
+        },
+        {
+          part: 1,
+          question: "Q8. The purpose of normalization is:",
+          options: [
+            "A. Increase redundancy",
+            "B. Reduce anomalies",
+            "C. Reduce query execution time",
+            "D. Encrypt data",
+          ],
+          correct: "B",
+          explanation:
+            "Normalization is the process of organizing columns and tables in a relational database to minimize data redundancy and reduce data anomalies (insertion, update, and deletion anomalies).",
+        },
+        {
+          part: 1,
+          question: "Q9. Functional dependency is represented as:",
+          options: ["A. X → Y", "B. X ← Y", "C. X + Y", "D. X = Y"],
+          correct: "A",
+          explanation:
+            "The notation X → Y represents a functional dependency, meaning that the value of attribute set Y is uniquely determined by the value of attribute set X.",
+        },
+        {
+          part: 1,
+          question:
+            "Q10. Which of the following anomalies is caused when the same data is stored multiple times?",
+          options: [
+            "A. Insertion anomaly",
+            "B. Deletion anomaly",
+            "C. Update anomaly",
+            "D. All of the above",
+          ],
+          correct: "D",
+          explanation:
+            "Data redundancy leads to all three types of anomalies: insertion (can't add data because some other data is missing), update (have to change data in multiple places), and deletion (losing unintended data when deleting a record).",
+        },
+        {
+          part: 1,
+          question:
+            "Q11. Which of the following is NOT a relational algebra operation?",
+          options: [
+            "A. Selection",
+            "B. Projection",
+            "C. Compilation",
+            "D. Join",
+          ],
+          correct: "C",
+          explanation:
+            "Selection (σ), Projection (π), and Join (⨝) are fundamental operations in relational algebra. Compilation is a process related to programming languages, not database theory.",
+        },
+        {
+          part: 1,
+          question: "Q12. The entity-relationship diagram (ERD) is used for:",
+          options: [
+            "A. Normalization",
+            "B. Conceptual design",
+            "C. Indexing",
+            "D. Execution",
+          ],
+          correct: "B",
+          explanation:
+            "ERDs are used during the conceptual design phase of database development to visually represent entities, their attributes, and the relationships between them.",
+        },
+        {
+          part: 1,
+          question:
+            "Q13. Which of the following is a valid relational algebra operation?",
+          options: [
+            "A. Union",
+            "B. Intersection",
+            "C. Difference",
+            "D. All of the above",
+          ],
+          correct: "D",
+          explanation:
+            "Union (∪), Intersection (∩), and Difference (−) are all standard set-theory operations that are also part of relational algebra.",
+        },
+        {
+          part: 1,
+          question: "Q14. Which is NOT part of ACID properties?",
+          options: [
+            "A. Atomicity",
+            "B. Consistency",
+            "C. Isolation",
+            "D. Durability",
+            "E. Redundancy",
+          ],
+          correct: "E",
+          explanation:
+            "ACID stands for Atomicity, Consistency, Isolation, and Durability, which are properties that guarantee database transactions are processed reliably. Redundancy is something that database design (like normalization) aims to reduce.",
+        },
+        {
+          part: 1,
+          question: "Q15. Which statement about NoSQL is true?",
+          options: [
+            "A. It follows strict schema",
+            "B. It uses only relational tables",
+            "C. It supports flexible, schema-less storage",
+            "D. It cannot handle large data",
+          ],
+          correct: "C",
+          explanation:
+            "A key feature of many NoSQL databases is their support for dynamic or flexible schemas, allowing for schema-less data storage, which is ideal for unstructured or semi-structured data.",
+        },
+        {
+          part: 1,
+          question: "Q16. Which SQL command is used to create a new table?",
+          options: ["A. INSERT", "B. CREATE", "C. ALTER", "D. UPDATE"],
+          correct: "B",
+          explanation:
+            "The `CREATE TABLE` statement is the standard SQL command used to define and create a new table in a database.",
+        },
+        {
+          part: 1,
+          question:
+            "Q17. Which SQL command is used to remove all rows from a table but keep its structure?",
+          options: ["A. DELETE", "B. DROP", "C. TRUNCATE"],
+          correct: "C",
+          explanation:
+            "`TRUNCATE TABLE` is a DDL command that quickly removes all records from a table. It's faster than `DELETE` because it doesn't log individual row deletions. `DROP` removes the entire table structure.",
+        },
+        {
+          part: 1,
+          question:
+            "Q18. Which SQL command is used to change the structure of a table (e.g., add a column)?",
+          options: ["A. MODIFY", "B. ALTER", "C. CREATE", "D. UPDATE"],
+          correct: "B",
+          explanation:
+            "The `ALTER TABLE` command is used to add, delete, or modify columns in an existing table, as well as add and drop various constraints.",
+        },
+        {
+          part: 1,
+          question:
+            "Q19. Which SQL command is used to permanently delete a table from a database?",
+          options: ["A. DROP", "B. DELETE", "C. TRUNCATE"],
+          correct: "A",
+          explanation:
+            "`DROP TABLE` is the command used to completely remove a table's structure, data, and associated objects (like indexes and triggers) from the database.",
+        },
+        {
+          part: 1,
+          question: "Q20. A Primary Key:",
+          options: [
+            "A. Allows NULL values",
+            "B. Must be unique and not NULL",
+            "C. Can have duplicates",
+            "D. Is optional",
+          ],
+          correct: "B",
+          explanation:
+            "A primary key constraint uniquely identifies each record in a table. It must contain unique values and cannot contain NULL values.",
+        },
+        {
+          part: 1,
+          question: "Q21. A Foreign Key is used to:",
+          options: [
+            "A. Identify a row uniquely within a table",
+            "B. Enforce a link between two tables",
+            "C. Allow duplicate values only",
+            "D. Remove redundancy",
+          ],
+          correct: "B",
+          explanation:
+            "A foreign key is a key used to link two tables together. It is a field (or collection of fields) in one table that refers to the PRIMARY KEY in another table, enforcing referential integrity.",
+        },
+        {
+          part: 1,
+          question:
+            "Q22. Which of the following is a NOT NULL constraint used for?",
+          options: [
+            "A. Prevent duplicate values",
+            "B. Ensure column cannot have null values",
+            "C. Automatically generate values",
+            "D. Create indexes",
+          ],
+          correct: "B",
+          explanation:
+            "The `NOT NULL` constraint enforces that a column cannot accept a NULL value. This ensures that a field must always contain a value.",
+        },
+        {
+          part: 1,
+          question: "Q23. The CHECK constraint is used to:",
+          options: [
+            "A. Limit the values in a column based on a condition",
+            "B. Verify table existence",
+            "C. Create indexes",
+            "D. Ensure foreign key constraints",
+          ],
+          correct: "A",
+          explanation:
+            "The `CHECK` constraint is used to limit the value range that can be placed in a column. It enforces domain integrity by allowing only values that satisfy a specific condition.",
+        },
+        {
+          part: 1,
+          question:
+            "Q24. Which of the following constraints automatically generates sequential numbers in MySQL?",
+          options: ["A. AUTO_NUMBER", "B. AUTO_SEQUENCE", "C. AUTO_INCREMENT"],
+          correct: "C",
+          explanation:
+            "`AUTO_INCREMENT` is a field attribute in MySQL that allows a unique number to be generated automatically when a new record is inserted into a table.",
+        },
+        {
+          part: 1,
+          question:
+            "Q25. Which of the following commands is used to grant privileges to a user in MySQL?",
+          options: ["A. GIVE", "B. GRANT", "C. ALLOW", "D. PERMIT"],
+          correct: "B",
+          explanation:
+            "The `GRANT` command is a Data Control Language (DCL) command used to provide specific access privileges (like SELECT, INSERT, UPDATE) to database users.",
+        },
+        {
+          part: 1,
+          question:
+            "Q26. Which join returns only rows that have matching values in both tables?",
+          options: [
+            "A. LEFT JOIN",
+            "B. RIGHT JOIN",
+            "C. INNER JOIN",
+            "D. FULL JOIN",
+          ],
+          correct: "C",
+          explanation:
+            "An `INNER JOIN` selects all rows from both participating tables as long as there is a match between the columns on which they are joined. It is the most common type of join.",
+        },
+        {
+          part: 1,
+          question:
+            "Q27. Which join returns all rows from the left table and the matched rows from the right table?",
+          options: [
+            "A. INNER JOIN",
+            "B. LEFT JOIN",
+            "C. RIGHT JOIN",
+            "D. CROSS JOIN",
+          ],
+          correct: "B",
+          explanation:
+            "A `LEFT JOIN` (or `LEFT OUTER JOIN`) returns all records from the left table, and the matched records from the right table. If there is no match, the result is NULL on the right side.",
+        },
+        {
+          part: 1,
+          question:
+            "Q28. Which join returns the Cartesian product of two tables?",
+          options: [
+            "A. NATURAL JOIN",
+            "B. CROSS JOIN",
+            "C. LEFT JOIN",
+            "D. INNER JOIN",
+          ],
+          correct: "B",
+          explanation:
+            "A `CROSS JOIN` produces a result set which is the number of rows in the first table multiplied by the number of rows in the second table, known as a Cartesian product. It returns all possible combinations of rows.",
+        },
+        {
+          part: 1,
+          question:
+            "Q29. Which join uses equality of common columns automatically?",
+          options: [
+            "A. CROSS JOIN",
+            "B. NATURAL JOIN",
+            "C. FULL OUTER JOIN",
+            "D. INNER JOIN",
+          ],
+          correct: "B",
+          explanation:
+            "A `NATURAL JOIN` is a type of join that automatically joins tables based on all columns that have the same name in both tables. It implicitly looks for equality between these common columns.",
+        },
+        {
+          part: 1,
+          question:
+            "Q30. Which SQL clause is used to filter groups after aggregation?",
+          options: ["A. WHERE", "B. GROUP BY", "C. HAVING", "D. ORDER BY"],
+          correct: "C",
+          explanation:
+            "The `HAVING` clause is used to filter results after the `GROUP BY` clause has been applied. While `WHERE` filters rows before aggregation, `HAVING` filters groups after aggregation.",
+        },
+        {
+          part: 1,
+          question:
+            "Q31. A subquery that executes once for each row in the outer query is called:",
+          options: [
+            "A. Nested query",
+            "B. Scalar subquery",
+            "C. Correlated subquery",
+          ],
+          correct: "C",
+          explanation:
+            "A correlated subquery is a subquery that depends on the outer query for its values. It is evaluated once for each row processed by the outer query, which can be inefficient.",
+        },
+        {
+          part: 1,
+          question:
+            "Q32. Which keyword is used in a subquery to check if any rows are returned?",
+          options: ["A. ALL", "B. EXISTS", "C. UNIQUE", "D. DISTINCT"],
+          correct: "B",
+          explanation:
+            "The `EXISTS` operator is used to test for the existence of any record in a subquery. It returns TRUE if the subquery returns one or more records.",
+        },
+        {
+          part: 1,
+          question:
+            "Q33. Which operator is used in subqueries to compare a value with a list of values?",
+          options: ["A. BETWEEN", "B. LIKE", "C. IN"],
+          correct: "C",
+          explanation:
+            "The `IN` operator allows you to specify multiple values in a `WHERE` clause, effectively checking if a value matches any value in a list or a subquery result.",
+        },
+        {
+          part: 1,
+          question:
+            "Q34. Which of the following is a valid transaction control command?",
+          options: [
+            "A. SAVEPOINT",
+            "B. ROLLBACK",
+            "C. COMMIT",
+            "D. All of the above",
+          ],
+          correct: "D",
+          explanation:
+            "`COMMIT`, `ROLLBACK`, and `SAVEPOINT` are all essential Transaction Control Language (TCL) commands used to manage transactions in a database.",
+        },
+        {
+          part: 1,
+          question:
+            "Q35. Which SQL command is used to revoke previously granted permissions?",
+          options: ["A. REVOKE", "B. REMOVE", "C. DENY", "D. UNDO"],
+          correct: "A",
+          explanation:
+            "The `REVOKE` command is the counterpart to `GRANT`. It is used to remove specific user privileges on database objects.",
+        },
+        {
+          part: 1,
+          question: "Q36. Which of the following is an aggregate function?",
+          options: [
+            "A. SUM()",
+            "B. COUNT()",
+            "C. AVG()",
+            "D. All of the above",
+          ],
+          correct: "D",
+          explanation:
+            "Aggregate functions perform a calculation on a set of values and return a single value. `SUM`, `COUNT`, `AVG`, `MAX`, and `MIN` are all common aggregate functions.",
+        },
+        {
+          part: 1,
+          question:
+            "Q37. Which function is used to return the current date and time in MySQL?",
+          options: ["A. GETDATE()", "B. CURDATE()", "C. NOW()", "D. TODAY()"],
+          correct: "C",
+          explanation:
+            "`NOW()` is the standard MySQL function that returns the current date and time. `CURDATE()` returns only the date, and `GETDATE()` is used in SQL Server.",
+        },
+        {
+          part: 1,
+          question:
+            "Q38. Which function removes leading and trailing spaces from a string?",
+          options: ["A. TRIM()", "B. LTRIM()", "C. RTRIM()", "D. CLEAN()"],
+          correct: "A",
+          explanation:
+            "`TRIM()` removes space characters from both the start and end of a string. `LTRIM()` removes only leading spaces, and `RTRIM()` removes only trailing spaces.",
+        },
+        {
+          part: 1,
+          question: "Q39. An index in MySQL is used to:",
+          options: [
+            "A. Increase redundancy",
+            "B. Improve query performance",
+            "C. Reduce data integrity",
+            "D. Replace primary key",
+          ],
+          correct: "B",
+          explanation:
+            "Indexes are special lookup tables that the database search engine can use to speed up data retrieval. They are crucial for improving query performance on large tables.",
+        },
+        {
+          part: 1,
+          question:
+            "Q40. Which type of index is automatically created for a PRIMARY KEY in MySQL?",
+          options: [
+            "A. Hash index",
+            "B. B-Tree index",
+            "C. Clustered index",
+            "D. Non-clustered index",
+          ],
+          correct: "B",
+          explanation:
+            "In most MySQL storage engines like InnoDB, a B-Tree index is automatically created for a PRIMARY KEY. InnoDB specifically uses a clustered index based on the primary key.",
+        },
+        {
+          part: 1,
+          question:
+            "Q41. Which keyword is used to create a stored procedure in MySQL?",
+          options: [
+            "A. FUNCTION",
+            "B. PROCEDURE",
+            "C. CREATE PROCEDURE",
+            "D. MAKE PROCEDURE",
+          ],
+          correct: "C",
+          explanation:
+            "The correct syntax to begin the definition of a stored procedure in MySQL is `CREATE PROCEDURE procedure_name(...)`.",
+        },
+        {
+          part: 1,
+          question:
+            "Q42. Stored procedures in MySQL can have which types of parameters?",
+          options: ["A. IN", "B. OUT", "C. INOUT", "D. All of the above"],
+          correct: "D",
+          explanation:
+            "MySQL stored procedures support three parameter modes: `IN` (input value), `OUT` (output value), and `INOUT` (both input and output).",
+        },
+        {
+          part: 1,
+          question:
+            "Q43. Which SQL command is used to execute a stored procedure?",
+          options: ["A. EXEC", "B. EXECUTE", "C. CALL", "D. RUN"],
+          correct: "C",
+          explanation:
+            "The `CALL` statement is used in MySQL to invoke a stored procedure. `EXEC` or `EXECUTE` are used in other database systems like SQL Server.",
+        },
+        {
+          part: 1,
+          question:
+            "Q44. Which of the following is an advantage of stored procedures?",
+          options: [
+            "A. Reduced network traffic",
+            "B. Reusability",
+            "C. Better security",
+            "D. All of the above",
+          ],
+          correct: "D",
+          explanation:
+            "Stored procedures offer multiple benefits, including reduced network traffic (only the call is sent), reusability (can be called multiple times), and enhanced security (can grant permissions to the procedure instead of underlying tables).",
+        },
+        {
+          part: 1,
+          question: "Q45. Which MySQL object can return a value directly?",
+          options: [
+            "A. Stored procedure",
+            "B. Function",
+            "C. Trigger",
+            "D. Cursor",
+          ],
+          correct: "B",
+          explanation:
+            "A user-defined function in MySQL is designed to perform a calculation and must always return a single value. A procedure can return values via OUT parameters but does not return a value in the same way.",
+        },
+        {
+          part: 1,
+          question:
+            "Q46. Which statement is used to exit from a stored procedure loop in MySQL?",
+          options: ["A. LEAVE", "B. EXIT", "C. RETURN", "D. END"],
+          correct: "A",
+          explanation:
+            "The `LEAVE` statement is used to terminate a loop (like `LOOP`, `REPEAT`, or `WHILE`) or a labeled block within a stored program.",
+        },
+        {
+          part: 1,
+          question:
+            "Q47. Which conditional statement is valid inside a stored procedure?",
+          options: ["A. IF … ELSE", "B. CASE", "C. SWITCH", "D. Both A and B"],
+          correct: "D",
+          explanation:
+            "MySQL stored programs support both `IF...THEN...ELSEIF...ELSE` and `CASE` statements for conditional logic. `SWITCH` is not a valid construct.",
+        },
+        {
+          part: 1,
+          question: "Q48. Which command is used to remove a stored procedure?",
+          options: [
+            "A. DELETE PROCEDURE",
+            "B. DROP PROCEDURE",
+            "C. REMOVE PROCEDURE",
+            "D. TRUNCATE PROCEDURE",
+          ],
+          correct: "B",
+          explanation:
+            "The `DROP PROCEDURE` command is used to permanently delete a stored procedure from the database.",
+        },
+        {
+          part: 1,
+          question: "Q49. Functions in MySQL must always return:",
+          options: [
+            "A. An integer",
+            "B. A cursor",
+            "C. A single value",
+            "D. A string",
+          ],
+          correct: "C",
+          explanation:
+            "A key characteristic of a MySQL function is that it must be defined with a `RETURNS` clause and must always return a single value of the specified data type.",
+        },
+        {
+          part: 1,
+          question:
+            "Q50. Which keyword is used to declare a variable inside a stored procedure?",
+          options: ["A. DEFINE", "B. DECLARE", "C. LET", "D. VAR"],
+          correct: "B",
+          explanation:
+            "The `DECLARE` keyword is used within a `BEGIN...END` block in a stored program to define local variables.",
+        },
+
+        // Part 2: Q51-100
+        {
+          part: 2,
+          question:
+            "Q51. Which keyword is used to handle exceptions in MySQL procedures?",
+          options: ["A. HANDLER", "B. TRY", "C. CATCH", "D. RESCUE"],
+          correct: "A",
+          explanation:
+            "MySQL uses `DECLARE ... HANDLER` to define how to handle exceptions or specific conditions (like errors or warnings) that occur within a block of code.",
+        },
+        {
+          part: 2,
+          question:
+            "Q52. Which loop type is NOT available in MySQL stored programs?",
+          options: ["A. LOOP", "B. REPEAT", "C. WHILE", "D. FOR"],
+          correct: "D",
+          explanation:
+            "MySQL supports `LOOP`, `REPEAT...UNTIL`, and `WHILE...DO` loop constructs. It does not have a traditional `FOR` loop like in many other programming languages.",
+        },
+        {
+          part: 2,
+          question: "Q53. What does ITERATE do in MySQL loops?",
+          options: [
+            "A. Skips remaining statements in loop and jumps to start",
+            "B. Exits loop",
+            "C. Ends procedure",
+            "D. Restarts database",
+          ],
+          correct: "A",
+          explanation:
+            "`ITERATE` is similar to the `continue` statement in other languages. It skips the rest of the statements in the current loop iteration and begins the next iteration.",
+        },
+        {
+          part: 2,
+          question:
+            "Q54. Which keyword is used to return from a function in MySQL?",
+          options: ["A. RETURN", "B. EXIT", "C. STOP", "D. LEAVE"],
+          correct: "A",
+          explanation:
+            "The `RETURN` statement is used within a function to specify the value that the function will send back to the caller.",
+        },
+        {
+          part: 2,
+          question: "Q55. MySQL stored procedures are stored in:",
+          options: [
+            "A. Application memory",
+            "B. Database catalog (data dictionary)",
+            "C. Flat files",
+            "D. Temporary tables",
+          ],
+          correct: "B",
+          explanation:
+            "Stored procedures, functions, and other database objects are stored as metadata within the database's data dictionary or catalog.",
+        },
+        {
+          part: 2,
+          question:
+            "Q56. Which type of cursor in MySQL allows only forward movement?",
+          options: [
+            "A. Scrollable",
+            "B. Non-scrollable",
+            "C. Dynamic",
+            "D. Bidirectional",
+          ],
+          correct: "B",
+          explanation:
+            "MySQL cursors are non-scrollable (or asensitive), meaning you can only fetch rows in a forward direction and cannot move backward or jump to a specific row.",
+        },
+        {
+          part: 2,
+          question: "Q57. Which keyword is used to declare a cursor in MySQL?",
+          options: [
+            "A. DECLARE CURSOR",
+            "B. CREATE CURSOR",
+            "C. OPEN CURSOR",
+            "D. INIT CURSOR",
+          ],
+          correct: "A",
+          explanation:
+            "A cursor is declared using the syntax `DECLARE cursor_name CURSOR FOR select_statement;` within a stored program.",
+        },
+        {
+          part: 2,
+          question:
+            "Q58. Which keyword is used to retrieve data from a cursor?",
+          options: ["A. GET", "B. FETCH", "C. SELECT", "D. RETRIEVE"],
+          correct: "B",
+          explanation:
+            "After a cursor is opened, the `FETCH` statement is used to retrieve the next row from the result set and advance the cursor's position.",
+        },
+        {
+          part: 2,
+          question: "Q59. Which cursor operation closes a cursor?",
+          options: ["A. END", "B. CLOSE", "C. DROP", "D. STOP"],
+          correct: "B",
+          explanation:
+            "The `CLOSE` statement deactivates the cursor and releases the memory used by its result set. It is good practice to close cursors after use.",
+        },
+        {
+          part: 2,
+          question: "Q60. Which trigger executes before a row is inserted?",
+          options: [
+            "A. BEFORE INSERT",
+            "B. AFTER INSERT",
+            "C. BEFORE UPDATE",
+            "D. AFTER UPDATE",
+          ],
+          correct: "A",
+          explanation:
+            "A `BEFORE INSERT` trigger is fired automatically just before a new row is inserted into a table, allowing you to modify the data or perform checks.",
+        },
+        {
+          part: 2,
+          question: "Q61. Which of the following is NOT a valid trigger event?",
+          options: ["A. INSERT", "B. UPDATE", "C. DELETE", "D. SELECT"],
+          correct: "D",
+          explanation:
+            "Triggers can be associated with data modification events (`INSERT`, `UPDATE`, `DELETE`). They cannot be fired by a `SELECT` statement.",
+        },
+        {
+          part: 2,
+          question: "Q62. In triggers, the keyword NEW refers to:",
+          options: [
+            "A. Old row values",
+            "B. Updated row values",
+            "C. Row values after modification",
+          ],
+          correct: "C",
+          explanation:
+            "`NEW` is a pseudo-row that contains the values of a row after the `INSERT` or `UPDATE` operation has occurred.",
+        },
+        {
+          part: 2,
+          question:
+            "Q63. Which keyword in triggers refers to old row values before update/delete?",
+          options: ["A. PAST", "B. OLD", "C. PREVIOUS", "D. BEFORE"],
+          correct: "B",
+          explanation:
+            "`OLD` is a pseudo-row that contains the original values of a row before it is affected by an `UPDATE` or `DELETE` operation.",
+        },
+        {
+          part: 2,
+          question: "Q64. Which statement is true about triggers?",
+          options: [
+            "A. They can call other triggers automatically",
+            "B. They execute automatically on events",
+            "C. They must be executed manually",
+            "D. They cannot access table data",
+          ],
+          correct: "B",
+          explanation:
+            "The primary characteristic of a trigger is that it is a special type of stored procedure that is invoked automatically in response to a specific event on a table.",
+        },
+        {
+          part: 2,
+          question: "Q65. Which statement is used to create a trigger?",
+          options: [
+            "A. CREATE TRIGGER",
+            "B. MAKE TRIGGER",
+            "C. START TRIGGER",
+            "D. INIT TRIGGER",
+          ],
+          correct: "A",
+          explanation:
+            "The `CREATE TRIGGER` statement is the standard SQL command used to define and create a new trigger.",
+        },
+        {
+          part: 2,
+          question: "Q66. Which command is used to remove a trigger?",
+          options: [
+            "A. DROP TRIGGER",
+            "B. DELETE TRIGGER",
+            "C. REMOVE TRIGGER",
+            "D. END TRIGGER",
+          ],
+          correct: "A",
+          explanation:
+            "The `DROP TRIGGER` command is used to permanently delete a trigger from the database.",
+        },
+        {
+          part: 2,
+          question:
+            "Q67. Which type of trigger executes after a row is modified?",
+          options: [
+            "A. BEFORE UPDATE",
+            "B. AFTER UPDATE",
+            "C. AFTER DELETE",
+            "D. BEFORE INSERT",
+          ],
+          correct: "B",
+          explanation:
+            "An `AFTER UPDATE` trigger is fired automatically after a row in a table has been successfully modified.",
+        },
+        {
+          part: 2,
+          question: "Q68. Triggers can be defined at which levels in MySQL?",
+          options: ["A. Row level", "B. Statement level", "C. Both A and B"],
+          correct: "A",
+          explanation:
+            "MySQL only supports row-level triggers, which means the trigger body is executed for each individual row affected by the triggering statement. Some other database systems support statement-level triggers.",
+        },
+        {
+          part: 2,
+          question:
+            "Q69. Which of the following is NOT an advantage of triggers?",
+          options: [
+            "A. Enforcing business rules",
+            "B. Automatic auditing",
+            "C. Slowing down transactions",
+          ],
+          correct: "C",
+          explanation:
+            "While triggers are useful for enforcing rules and auditing, their execution adds overhead to DML operations, which can potentially slow down transactions. This is a potential disadvantage.",
+        },
+        {
+          part: 2,
+          question: "Q70. In MySQL, triggers are stored in:",
+          options: [
+            "A. Application layer",
+            "B. Database server",
+            "C. Client memory",
+            "D. OS files",
+          ],
+          correct: "B",
+          explanation:
+            "Like stored procedures, triggers are database objects that are stored and managed by the database server itself.",
+        },
+        {
+          part: 2,
+          question:
+            "Q71. Which of the following is a transaction control command?",
+          options: [
+            "A. COMMIT",
+            "B. ROLLBACK",
+            "C. SAVEPOINT",
+            "D. All of the above",
+          ],
+          correct: "D",
+          explanation:
+            "`COMMIT`, `ROLLBACK`, and `SAVEPOINT` are the core Transaction Control Language (TCL) commands.",
+        },
+        {
+          part: 2,
+          question:
+            "Q72. Which of the following ensures that either all operations in a transaction are executed or none?",
+          options: [
+            "A. Consistency",
+            "B. Atomicity",
+            "C. Isolation",
+            "D. Durability",
+          ],
+          correct: "B",
+          explanation:
+            "Atomicity is the 'all or nothing' property of ACID. It guarantees that each transaction is treated as a single, indivisible 'unit'.",
+        },
+        {
+          part: 2,
+          question:
+            "Q73. Which ACID property ensures that once a transaction is committed, it will remain so?",
+          options: [
+            "A. Atomicity",
+            "B. Consistency",
+            "C. Isolation",
+            "D. Durability",
+          ],
+          correct: "D",
+          explanation:
+            "Durability guarantees that once a transaction has been committed, it will remain committed even in the event of a power loss, crash, or error.",
+        },
+        {
+          part: 2,
+          question:
+            "Q74. Which of the following is NOT a valid isolation level?",
+          options: [
+            "A. READ UNCOMMITTED",
+            "B. READ COMMITTED",
+            "C. REPEATABLE READ",
+            "D. PARALLEL READ",
+          ],
+          correct: "D",
+          explanation:
+            "The standard SQL isolation levels are READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, and SERIALIZABLE. PARALLEL READ is not a standard isolation level.",
+        },
+        {
+          part: 2,
+          question: "Q75. A transaction that never ends is called:",
+          options: [
+            "A. Lost transaction",
+            "B. Dirty transaction",
+            "C. In-doubt transaction",
+            "D. Long-running transaction",
+          ],
+          correct: "C",
+          explanation:
+            "An in-doubt transaction is one that is stuck in a prepared state, often in a distributed system, where the system doesn't know whether to commit or roll back.",
+        },
+        {
+          part: 2,
+          question:
+            "Q76. Which command is used to create a savepoint inside a transaction?",
+          options: ["A. SAVE", "B. SAVEPOINT", "C. MARK", "D. CHECKPOINT"],
+          correct: "B",
+          explanation:
+            "The `SAVEPOINT savepoint_name` command sets a named marker within a transaction to which you can later roll back.",
+        },
+        {
+          part: 2,
+          question:
+            "Q77. Which command rolls back a transaction to a specific point?",
+          options: [
+            "A. ROLLBACK TO SAVEPOINT",
+            "B. COMMIT TO SAVEPOINT",
+            "C. REWIND",
+            "D. RESET",
+          ],
+          correct: "A",
+          explanation:
+            "The `ROLLBACK TO SAVEPOINT savepoint_name` command undoes all changes made in the transaction since the specified savepoint was created.",
+        },
+        {
+          part: 2,
+          question:
+            "Q78. Which anomaly occurs when a transaction reads uncommitted data?",
+          options: [
+            "A. Dirty read",
+            "B. Non-repeatable read",
+            "C. Phantom read",
+            "D. Lost update",
+          ],
+          correct: "A",
+          explanation:
+            "A dirty read occurs when a transaction is allowed to read data from a row that has been modified by another transaction but not yet committed.",
+        },
+        {
+          part: 2,
+          question:
+            "Q79. Which MySQL handler type continues execution after handling an error?",
+          options: ["A. CONTINUE", "B. EXIT", "C. STOP", "D. IGNORE"],
+          correct: "A",
+          explanation:
+            "A `CONTINUE` handler will execute its statement and then resume execution at the next statement after the one that caused the error.",
+        },
+        {
+          part: 2,
+          question:
+            "Q80. Which MySQL handler type terminates a block when error occurs?",
+          options: ["A. CONTINUE", "B. EXIT", "C. STOP", "D. HALT"],
+          correct: "B",
+          explanation:
+            "An `EXIT` handler will execute its statement and then terminate the `BEGIN...END` block in which the handler is declared.",
+        },
+        {
+          part: 2,
+          question:
+            "Q81. Which theorem explains trade-offs between consistency, availability, and partition tolerance?",
+          options: [
+            "A. Codd’s theorem",
+            "B. CAP theorem",
+            "C. BASE theorem",
+            "D. Normalization theorem",
+          ],
+          correct: "B",
+          explanation:
+            "The CAP theorem, also known as Brewer's theorem, states that it is impossible for a distributed data store to simultaneously provide more than two out of the three guarantees: Consistency, Availability, and Partition tolerance.",
+        },
+        {
+          part: 2,
+          question: "Q82. BASE in NoSQL stands for:",
+          options: [
+            "A. Basically Available, Soft state, Eventual consistency",
+            "B. Binary Array Storage Engine",
+            "C. Basic Application Storage Environment",
+            "D. Backup And Secure Engine",
+          ],
+          correct: "A",
+          explanation:
+            "BASE is an alternative to ACID that is common in NoSQL databases. It prioritizes availability over immediate consistency, consisting of: Basically Available, Soft state, and Eventual consistency.",
+        },
+        {
+          part: 2,
+          question:
+            "Q83. Which of the following is a document-based NoSQL database?",
+          options: ["A. MongoDB", "B. Cassandra", "C. Redis", "D. Neo4j"],
+          correct: "A",
+          explanation:
+            "MongoDB is a leading document-oriented database. Cassandra is wide-column, Redis is key-value, and Neo4j is a graph database.",
+        },
+        {
+          part: 2,
+          question: "Q84. In MongoDB, a table is equivalent to:",
+          options: ["A. Schema", "B. Document", "C. Collection", "D. Field"],
+          correct: "C",
+          explanation:
+            "In MongoDB's terminology, a 'collection' is the equivalent of a table in a relational database (RDBMS).",
+        },
+        {
+          part: 2,
+          question: "Q85. In MongoDB, a row is equivalent to:",
+          options: ["A. Collection", "B. Document", "C. Index", "D. Schema"],
+          correct: "B",
+          explanation:
+            "A 'document' in MongoDB is a BSON object that is analogous to a row or record in a relational database table.",
+        },
+        {
+          part: 2,
+          question: "Q86. MongoDB data is stored in:",
+          options: [
+            "A. CSV files",
+            "B. JSON/BSON format",
+            "C. SQL format",
+            "D. XML only",
+          ],
+          correct: "B",
+          explanation:
+            "MongoDB stores data in BSON (Binary JSON), a binary-encoded serialization of JSON-like documents. This format is efficient for storage and traversal.",
+        },
+        {
+          part: 2,
+          question:
+            "Q87. Which of the following is NOT a valid MongoDB data type?",
+          options: ["A. String", "B. Integer", "C. Date", "D. Table"],
+          correct: "D",
+          explanation:
+            "MongoDB has a rich set of data types like String, Integer, Double, Date, ObjectId, etc., but 'Table' is a concept from relational databases, not a data type within a MongoDB document.",
+        },
+        {
+          part: 2,
+          question: "Q88. Which MongoDB command is used to insert documents?",
+          options: [
+            "A. db.collection.add()",
+            "B. db.collection.insertOne()",
+            "C. db.collection.create()",
+            "D. db.collection.put()",
+          ],
+          correct: "B",
+          explanation:
+            "`db.collection.insertOne()` is used to insert a single document, and `db.collection.insertMany()` is used to insert multiple documents into a collection.",
+        },
+        {
+          part: 2,
+          question:
+            "Q89. Which command retrieves all documents from a MongoDB collection?",
+          options: [
+            "A. db.collection.find()",
+            "B. db.collection.get()",
+            "C. db.collection.select()",
+            "D. db.collection.show()",
+          ],
+          correct: "A",
+          explanation:
+            "The `db.collection.find()` method is used to query a collection for documents. Calling it with an empty query document (`{}`) retrieves all documents.",
+        },
+        {
+          part: 2,
+          question: "Q90. Which command updates a document in MongoDB?",
+          options: [
+            "A. db.collection.change()",
+            "B. db.collection.updateOne()",
+            "C. db.collection.modify()",
+            "D. db.collection.alter()",
+          ],
+          correct: "B",
+          explanation:
+            "`db.collection.updateOne()` updates a single document that matches a filter, while `db.collection.updateMany()` updates all documents that match a filter.",
+        },
+        {
+          part: 2,
+          question:
+            "Q91. Which MongoDB operator is used for greater than condition?",
+          options: ["A. $gt", "B. $gte", "C. $lt", "D. $lte"],
+          correct: "A",
+          explanation:
+            "The comparison query operators in MongoDB are: `$gt` (greater than), `$gte` (greater than or equal to), `$lt` (less than), and `$lte` (less than or equal to).",
+        },
+        {
+          part: 2,
+          question:
+            "Q92. Which operator is used to check existence of a field in MongoDB?",
+          options: ["A. $field", "B. $exists", "C. $check", "D. $find"],
+          correct: "B",
+          explanation:
+            "The `$exists` operator matches documents that have (or do not have) a specified field. For example, `{ field: { $exists: true } }`.",
+        },
+        {
+          part: 2,
+          question: "Q93. In MongoDB, indexing improves:",
+          options: [
+            "A. Storage cost",
+            "B. Query performance",
+            "C. Schema design",
+            "D. Data redundancy",
+          ],
+          correct: "B",
+          explanation:
+            "Indexes support the efficient execution of queries in MongoDB. Without indexes, MongoDB must perform a collection scan, which is slow for large collections.",
+        },
+        {
+          part: 2,
+          question:
+            "Q94. Which index is created automatically for every MongoDB collection?",
+          options: [
+            "A. Text index",
+            "B. Compound index",
+            "C. _id index",
+            "D. B-tree index",
+          ],
+          correct: "C",
+          explanation:
+            "MongoDB automatically creates a unique index on the `_id` field for every collection. This index cannot be dropped.",
+        },
+        {
+          part: 2,
+          question: "Q95. Which MongoDB function deletes multiple documents?",
+          options: [
+            "A. db.collection.removeMany()",
+            "B. db.collection.deleteMany()",
+            "C. db.collection.drop()",
+            "D. db.collection.remove()",
+          ],
+          correct: "B",
+          explanation:
+            "`db.collection.deleteMany()` is used to delete all documents that match a specified filter. `deleteOne()` deletes just the first match.",
+        },
+        {
+          part: 2,
+          question: "Q96. Which MongoDB method sorts results?",
+          options: [
+            "A. sort()",
+            "B. orderBy()",
+            "C. arrange()",
+            "D. groupBy()",
+          ],
+          correct: "A",
+          explanation:
+            "The `sort()` method is chained to a `find()` query to specify the order of the results. For example, `.sort({ field: 1 })` for ascending order.",
+        },
+        {
+          part: 2,
+          question:
+            "Q97. Which MongoDB aggregation stage is used to group documents?",
+          options: ["A. $filter", "B. $group", "C. $aggregate", "D. $collect"],
+          correct: "B",
+          explanation:
+            "The `$group` stage in the aggregation pipeline separates documents into groups according to a specified group key and can perform aggregate functions on each group.",
+        },
+        {
+          part: 2,
+          question: "Q98. MongoDB Compass is:",
+          options: [
+            "A. A NoSQL engine",
+            "B. A graphical UI tool",
+            "C. A programming language",
+            "D. A query optimizer",
+          ],
+          correct: "B",
+          explanation:
+            "MongoDB Compass is the official graphical user interface (GUI) for MongoDB that allows you to visually explore your data, run queries, and interact with your database.",
+        },
+        {
+          part: 2,
+          question: "Q99. MongoDB Atlas is:",
+          options: [
+            "A. A cloud-based managed MongoDB service",
+            "B. A backup tool",
+            "C. A query language",
+            "D. A schema validator",
+          ],
+          correct: "A",
+          explanation:
+            "MongoDB Atlas is a fully-managed, global cloud database service provided by the creators of MongoDB, running on AWS, Google Cloud, and Azure.",
+        },
+        {
+          part: 2,
+          question:
+            "Q100. Which of the following is a disadvantage of MongoDB?",
+          options: [
+            "A. Schema flexibility",
+            "B. High availability",
+            "C. High scalability",
+            "D. Large memory usage",
+          ],
+          correct: "D",
+          explanation:
+            "While powerful, MongoDB can have high memory (RAM) usage, especially with large datasets and indexes, which can increase operational costs. The other options are considered advantages.",
+        },
+
+        // Part 3: Q101-150
+        {
+          part: 3,
+          question: "Q101. Based on the snippet, what will be the output?",
+          code: "INSERT INTO students (name, age) VALUES ('Ali', 21), ('Sara', 22), ('Ravi', NULL);\nSELECT COUNT(*) FROM students WHERE age IS NULL;",
+          options: ["A. 0", "B. 1", "C. 2", "D. Error"],
+          correct: "B",
+          explanation:
+            "The query specifically counts rows where the 'age' column is NULL. Only the record for 'Ravi' has a NULL age, so the count is 1.",
+        },
+        {
+          part: 3,
+          question: "Q102. What will `SELECT 10/3;` return in MySQL?",
+          options: ["A. 3", "B. 3.3", "C. 3.3333", "D. Error"],
+          correct: "C",
+          explanation:
+            "In MySQL, division with `/` performs floating-point division by default, returning a result with decimal precision. The exact number of decimal places may vary.",
+        },
+        {
+          part: 3,
+          question: "Q103. What is the output of `SELECT '5' + 2;` in MySQL?",
+          options: ["A. 7", "B. '52'", "C. Error", "D. 5"],
+          correct: "A",
+          explanation:
+            "MySQL performs implicit type casting in arithmetic contexts. It converts the string '5' to the number 5 and then performs the addition, resulting in 7.",
+        },
+        {
+          part: 3,
+          question:
+            "Q104. What is the output of `SELECT COALESCE(NULL, NULL, 'Hello', 'World');`?",
+          options: ["A. NULL", "B. Hello", "C. World", "D. Error"],
+          correct: "B",
+          explanation:
+            "The `COALESCE` function returns the first non-NULL value in its argument list. In this case, it skips the first two NULLs and returns 'Hello'.",
+        },
+        {
+          part: 3,
+          question: "Q105. What is the output of `SELECT IFNULL(NULL, 100);`?",
+          options: ["A. NULL", "B. 0", "C. 100", "D. Error"],
+          correct: "C",
+          explanation:
+            "`IFNULL(expr1, expr2)` returns `expr1` if it is not NULL, otherwise it returns `expr2`. Since the first argument is NULL, it returns 100.",
+        },
+        {
+          part: 3,
+          question: "Q106. Which result is correct for the query?",
+          code: "SELECT salary, COUNT(*)\nFROM emp\nGROUP BY salary;",
+          options: [
+            "A. Two rows: 5000 → 2, 6000 → 1",
+            "B. Three rows: each row unique",
+            "C. One row: total count = 3",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "The query groups rows by salary and counts the occurrences of each salary. Since 5000 appears twice and 6000 appears once, it will return two rows with these respective counts.",
+        },
+        {
+          part: 3,
+          question:
+            "Q107. The query `SELECT name FROM students WHERE name LIKE '_a%';` retrieves:",
+          options: [
+            "A. Names ending with 'a'",
+            "B. Names with 'a' as the 2nd letter",
+            "C. Names starting with 'a'",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "In `LIKE` patterns, `_` matches any single character and `%` matches any sequence of zero or more characters. `_a%` means: any single first character, followed by 'a', followed by anything else.",
+        },
+        {
+          part: 3,
+          question:
+            "Q108. Which employees are returned by `WHERE salary BETWEEN 5000 AND 6000;`?",
+          options: [
+            "A. Only salary=5000",
+            "B. Only salary=6000",
+            "C. Both 5000 and 6000",
+            "D. None",
+          ],
+          correct: "C",
+          explanation:
+            "The `BETWEEN` operator is inclusive, meaning it selects values that are greater than or equal to the first value and less than or equal to the second value. It will include employees with salaries of both 5000 and 6000.",
+        },
+        {
+          part: 3,
+          question:
+            "Q109. If salaries are (5000, 6000, 5000), how many rows are returned by `SELECT DISTINCT salary FROM emp;`?",
+          options: ["A. 1", "B. 2", "C. 3", "D. Error"],
+          correct: "B",
+          explanation:
+            "`DISTINCT` keyword eliminates duplicate rows from the result set. The unique salary values are 5000 and 6000, so two rows are returned.",
+        },
+        {
+          part: 3,
+          question:
+            "Q110. If emp has salaries (5000, 6000, 5000), what is the result of `SELECT COUNT(*), SUM(salary) FROM emp;`?",
+          options: [
+            "A. Count=3, Sum=16000",
+            "B. Count=2, Sum=11000",
+            "C. Count=3, Sum=11000",
+            "D. Count=2, Sum=16000",
+          ],
+          correct: "A",
+          explanation:
+            "`COUNT(*)` counts all three rows. `SUM(salary)` adds all salaries: 5000 + 6000 + 5000 = 16000.",
+        },
+        {
+          part: 3,
+          question: "Q111. What will `SELECT NOW() - INTERVAL 1 DAY;` return?",
+          options: [
+            "A. Yesterday’s date & time",
+            "B. Today’s date & time",
+            "C. Error",
+            "D. NULL",
+          ],
+          correct: "A",
+          explanation:
+            "`NOW()` returns the current timestamp. Subtracting an `INTERVAL` of 1 day results in the timestamp for the exact same time on the previous day.",
+        },
+        {
+          part: 3,
+          question:
+            "Q112. What is the output of `SELECT CHAR_LENGTH('Database');`?",
+          options: ["A. 7", "B. 8", "C. 9", "D. Error"],
+          correct: "B",
+          explanation:
+            "`CHAR_LENGTH()` returns the number of characters in a string. The word 'Database' has 8 characters.",
+        },
+        {
+          part: 3,
+          question: "Q113. What is the output of `SELECT ROUND(15.567, 2);`?",
+          options: ["A. 15.56", "B. 15.57", "C. 15.5", "D. Error"],
+          correct: "B",
+          explanation:
+            "`ROUND(number, decimals)` rounds the number to the specified number of decimal places. 15.567 rounded to 2 decimal places is 15.57 because the third digit (7) is 5 or greater.",
+        },
+        {
+          part: 3,
+          question:
+            "Q114. What is the output of `SELECT REPLACE('banana', 'a', 'o');`?",
+          options: ["A. bonono", "B. banana", "C. bonana", "D. Error"],
+          correct: "A",
+          explanation:
+            "The `REPLACE` function replaces all occurrences of a specified substring with another substring. All 'a' characters are replaced with 'o', resulting in 'bonono'.",
+        },
+        {
+          part: 3,
+          question:
+            "Q115. What is the output of `SELECT CONCAT('SQL', ' ', 'Test');`?",
+          options: ["A. SQL Test", "B. SQLTest", "C. SQL", "D. Error"],
+          correct: "A",
+          explanation:
+            "`CONCAT` joins two or more strings together. Here, it combines 'SQL', a space, and 'Test' into the single string 'SQL Test'.",
+        },
+        {
+          part: 3,
+          question:
+            "Q116. What will `db.students.find();` return after an insert?",
+          code: 'db.students.insertOne({name:"Ali", age:21});\ndb.students.find();',
+          options: [
+            "A. Empty result",
+            'B. { name:"Ali", age:21 } with _id',
+            "C. Error",
+            "D. Only _id",
+          ],
+          correct: "B",
+          explanation:
+            "After `insertOne` adds the document, `find()` will retrieve it. MongoDB automatically adds a unique `_id` field to every document upon insertion.",
+        },
+        {
+          part: 3,
+          question:
+            'Q117. If students = [{name:"Ali", age:21}, {name:"Sara", age:19}], what is the result?',
+          code: "db.students.find({age:{$gt:20}});",
+          options: [
+            "A. Ali only",
+            "B. Sara only",
+            "C. Both Ali & Sara",
+            "D. None",
+          ],
+          correct: "A",
+          explanation:
+            "The query uses `$gt` (greater than) to find documents where the age is greater than 20. Only Ali's record (age 21) matches this condition.",
+        },
+        {
+          part: 3,
+          question: "Q118. What is the effect of this command?",
+          code: 'db.students.updateOne({name:"Ali"}, {$set:{age:25}});',
+          options: [
+            "A. Adds a new document",
+            "B. Updates Ali’s age to 25",
+            "C. Deletes Ali",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            '`updateOne` finds the first document matching the filter `{name:"Ali"}` and applies the update operation. `$set` modifies the value of the `age` field to 25.',
+        },
+        {
+          part: 3,
+          question:
+            'Q119. What is the effect of `db.students.deleteOne({name:"Sara"});`?',
+          options: [
+            "A. Deletes all Sara records",
+            "B. Deletes one Sara record",
+            "C. Deletes none",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            '`deleteOne` finds the first document that matches the filter `{name:"Sara"}` and removes it from the collection. `deleteMany` would be used to delete all matching records.',
+        },
+        {
+          part: 3,
+          question: "Q120. If Ali=25, Sara=19, Ravi=22 → which are shown?",
+          code: "db.students.find({age:{$lte:22}});",
+          options: [
+            "A. Sara only",
+            "B. Sara & Ravi",
+            "C. Ali only",
+            "D. All three",
+          ],
+          correct: "B",
+          explanation:
+            "The query uses `$lte` (less than or equal to) to find documents where age is 22 or less. Sara (19) and Ravi (22) match this condition.",
+        },
+        {
+          part: 3,
+          question: "Q121. What does `db.students.find({name:/^A/});` return?",
+          options: [
+            "A. Whose name contains 'A' anywhere",
+            "B. Whose name starts with 'A'",
+            "C. Whose name ends with 'A'",
+            "D. None",
+          ],
+          correct: "B",
+          explanation:
+            "This query uses a regular expression. The `^` character is an anchor that matches the beginning of a string. Therefore, `/^A/` finds names that start with 'A'.",
+        },
+        {
+          part: 3,
+          question:
+            "Q122. What does `db.students.find({age:{$exists:true}});` return?",
+          options: [
+            "A. Only students with age field",
+            "B. Students with no age field",
+            "C. Error",
+            "D. None",
+          ],
+          correct: "A",
+          explanation:
+            "The `$exists:true` operator selects documents that contain the specified field, regardless of the field's value (including null).",
+        },
+        {
+          part: 3,
+          question: "Q123. What does this query do?",
+          code: 'db.students.aggregate([{$group:{_id:"$age", count:{$sum:1}}}]);',
+          options: [
+            "A. Groups students by name",
+            "B. Groups students by age and counts them",
+            "C. Sorts by age",
+            "D. Deletes duplicates",
+          ],
+          correct: "B",
+          explanation:
+            "This is an aggregation query. `$group` creates groups of documents based on the `_id` field (here, the value of the `age` field). For each group, `$sum:1` increments a counter, effectively counting the students of each age.",
+        },
+        {
+          part: 3,
+          question:
+            "Q124. What is the effect of `db.students.find().sort({age:-1});`?",
+          options: [
+            "A. Sort ascending age",
+            "B. Sort descending age",
+            "C. Random sort",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "The `sort()` method orders the documents. A value of `1` specifies ascending order, while `-1` specifies descending order. This will sort students from oldest to youngest.",
+        },
+        {
+          part: 3,
+          question:
+            "Q125. What does `db.students.createIndex({name:1});` create?",
+          options: [
+            "A. Index on age",
+            "B. Index on name ascending",
+            "C. Compound index",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "This command creates a single-field index on the `name` field. The `1` indicates that the index stores the names in ascending order.",
+        },
+        {
+          part: 3,
+          question:
+            "Q126. What is the output of `SELECT SUM(amount) FROM orders;` for amounts (100, 200, NULL)?",
+          options: ["A. 300", "B. 0", "C. NULL", "D. 100"],
+          correct: "A",
+          explanation:
+            "Aggregate functions like `SUM()` ignore NULL values. Therefore, it calculates the sum of 100 + 200, which is 300.",
+        },
+        {
+          part: 3,
+          question:
+            "Q127. What is the output of `SELECT AVG(amount) FROM orders;` for amounts (100, 200, NULL)?",
+          options: ["A. 100", "B. 150", "C. 300", "D. NULL"],
+          correct: "B",
+          explanation:
+            "The `AVG()` function also ignores NULL values. It calculates the sum (300) and divides by the count of non-NULL values (2), resulting in 150.",
+        },
+        {
+          part: 3,
+          question: "Q128. What is the output of `SELECT NULL = NULL;`?",
+          options: ["A. TRUE", "B. FALSE", "C. NULL", "D. Error"],
+          correct: "C",
+          explanation:
+            "In SQL, NULL represents an unknown value. Comparing an unknown value to another unknown value results in unknown, which is represented as NULL. You cannot use standard comparison operators like `=` with NULL.",
+        },
+        {
+          part: 3,
+          question: "Q129. What is the output of `SELECT NULL IS NULL;`?",
+          options: ["A. TRUE", "B. FALSE", "C. NULL", "D. Error"],
+          correct: "A",
+          explanation:
+            "The correct way to check for NULL is with the `IS NULL` operator. This expression correctly evaluates whether a value is NULL and returns TRUE.",
+        },
+        {
+          part: 3,
+          question:
+            "Q130. If amounts are (100, 200, NULL), what is the result of the CASE statement?",
+          code: "SELECT CASE WHEN amount > 150 THEN 'High' ELSE 'Low' END FROM orders;",
+          options: [
+            "A. Low, High, NULL",
+            "B. Low, High, Low",
+            "C. High, Low, NULL",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "For 100, `100 > 150` is false, so it's 'Low'. For 200, `200 > 150` is true, so it's 'High'. For NULL, `NULL > 150` evaluates to unknown (NULL), which is not true, so it falls into the `ELSE` 'Low' category. Note: Some SQL dialects might produce NULL.",
+        },
+        {
+          part: 3,
+          question: "Q131. What is the output of `SELECT 2 IN (2, 3, 4);`?",
+          options: ["A. TRUE", "B. FALSE", "C. NULL", "D. Error"],
+          correct: "A",
+          explanation:
+            "The `IN` operator checks for existence within a set of values. Since 2 is present in the list, the expression returns TRUE (represented as 1 in MySQL).",
+        },
+        {
+          part: 3,
+          question: "Q132. What is the output of `SELECT 5 BETWEEN 3 AND 7;`?",
+          options: ["A. TRUE", "B. FALSE", "C. NULL", "D. Error"],
+          correct: "A",
+          explanation:
+            "The `BETWEEN` operator is inclusive. Since 5 is greater than or equal to 3 and less than or equal to 7, the expression returns TRUE (represented as 1 in MySQL).",
+        },
+        {
+          part: 3,
+          question:
+            "Q133. What is the output of `SELECT CONCAT_WS('-', '2025', '09', '16');`?",
+          options: [
+            "A. 2025-09-16",
+            "B. 20250916",
+            "C. 2025/09/16",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "`CONCAT_WS` (Concatenate With Separator) joins strings together using the first argument as the separator between them. It places '-' between '2025', '09', and '16'.",
+        },
+        {
+          part: 3,
+          question:
+            "Q134. What is the output of `SELECT SUBSTRING('Database', 2, 3);`?",
+          options: ["A. Dat", "B. ata", "C. tab", "D. Error"],
+          correct: "B",
+          explanation:
+            "`SUBSTRING(string, start, length)` extracts a substring. Starting from the 2nd character ('a'), it extracts 3 characters, resulting in 'ata'.",
+        },
+        {
+          part: 3,
+          question:
+            "Q135. What will `SELECT LENGTH(' 😊 ');` likely return in MySQL?",
+          options: [
+            "A. 1",
+            "B. 2–4 (depends on encoding)",
+            "C. Error",
+            "D. NULL",
+          ],
+          correct: "B",
+          explanation:
+            "The `LENGTH` function returns the length of a string in bytes, not characters. A multi-byte character like an emoji can take 2, 3, or 4 bytes depending on the character and the connection encoding (like utf8mb4).",
+        },
+        {
+          part: 3,
+          question: "Q136. What is the output of `SELECT REVERSE('SQL');`?",
+          options: ["A. SQL", "B. QLS", "C. LQS"],
+          correct: "C",
+          explanation:
+            "The `REVERSE` function simply returns the string with its characters in the opposite order. 'SQL' reversed is 'LQS'.",
+        },
+        {
+          part: 3,
+          question: "Q137. What is the output of `SELECT MOD(10, 3);`?",
+          options: ["A. 1", "B. 2", "C. 3", "D. Error"],
+          correct: "A",
+          explanation:
+            "`MOD(N, M)` or `N % M` returns the remainder of N divided by M. 10 divided by 3 is 3 with a remainder of 1.",
+        },
+        {
+          part: 3,
+          question: "Q138. What is the output of `SELECT POWER(2, 4);`?",
+          options: ["A. 8", "B. 12", "C. 16", "D. 24"],
+          correct: "C",
+          explanation:
+            "`POWER(base, exponent)` returns the value of the base raised to the power of the exponent. 2 to the power of 4 (2*2*2*2) is 16.",
+        },
+        {
+          part: 3,
+          question:
+            "Q139. What is the output of `SELECT DATE_FORMAT('2025-09-16', '%d-%m-%Y');`?",
+          options: [
+            "A. 16-09-2025",
+            "B. 09-16-2025",
+            "C. 2025-09-16",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "`DATE_FORMAT` formats a date according to the format specifiers. `%d` is the day of the month, `%m` is the month, and `%Y` is the 4-digit year. The output matches this format.",
+        },
+        {
+          part: 3,
+          question:
+            "Q140. What is the output of `SELECT DATEDIFF('2025-09-16', '2025-09-10');`?",
+          options: ["A. 5", "B. 6", "C. -6", "D. Error"],
+          correct: "B",
+          explanation:
+            "`DATEDIFF(date1, date2)` returns the number of days between the two dates (date1 - date2). The difference between the 16th and the 10th is 6 days.",
+        },
+        {
+          part: 3,
+          question:
+            "Q141. What will `db.orders.find({amount:{$exists:false}});` return?",
+          code: "db.orders.insertMany([ {id:1, amount:100}, {id:2, amount:200}, {id:3} ]);",
+          options: [
+            "A. Empty result",
+            "B. Only id=3 document",
+            "C. All documents",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "The query looks for documents where the `amount` field does not exist. Out of the three inserted documents, only the one with `id:3` is missing the `amount` field.",
+        },
+        {
+          part: 3,
+          question:
+            "Q142. If amounts are [100,200,null], what is the result of `db.orders.find({amount:{$in:[100,300]}});`?",
+          options: [
+            "A. id=1 only",
+            "B. id=1 and id=3",
+            "C. id=2 only",
+            "D. None",
+          ],
+          correct: "A",
+          explanation:
+            "The `$in` operator matches documents where the field value is any of the values in the specified array. Only the document with `amount:100` matches the array `[100, 300]`.",
+        },
+        {
+          part: 3,
+          question:
+            "Q143. What is the effect of `db.orders.updateOne({id:2}, {$inc:{amount:50}});`?",
+          options: [
+            "A. Increases amount of id=2 by 50",
+            "B. Decreases by 50",
+            "C. Deletes record",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "The `$inc` operator is used to increment (or decrement with a negative value) the value of a field. This command finds the document with `id:2` and increases its `amount` by 50.",
+        },
+        {
+          part: 3,
+          question: "Q144. What is the effect of `db.orders.find().limit(1);`?",
+          options: [
+            "A. Shows all documents",
+            "B. Shows only 1 document",
+            "C. Shows none",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "The `limit()` cursor method restricts the number of documents returned by a query. `.limit(1)` will return only the first document found.",
+        },
+        {
+          part: 3,
+          question: "Q145. What is the effect of `db.orders.find().skip(1);`?",
+          options: [
+            "A. Skips first doc, shows rest",
+            "B. Shows all docs",
+            "C. Skips last doc",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "The `skip()` cursor method controls the starting point of the results set. `.skip(1)` will ignore the first document and begin returning documents from the second one onwards.",
+        },
+        {
+          part: 3,
+          question:
+            "Q146. What does `db.orders.aggregate([{$match:{amount:{$gte:150}}}]);` do?",
+          options: [
+            "A. Filters orders with amount ≥ 150",
+            "B. Deletes orders < 150",
+            "C. Groups by amount",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "`$match` is an aggregation pipeline stage that filters documents, passing only those that match the specified condition to the next stage. Here, it filters for amounts greater than or equal to (`$gte`) 150.",
+        },
+        {
+          part: 3,
+          question:
+            "Q147. If orders are 100, 200, null → what is the result of `db.orders.find({amount:{$ne:200}});`?",
+          options: ["A. Only 100", "B. 100 & null", "C. Only 200", "D. None"],
+          correct: "B",
+          explanation:
+            "The `$ne` (not equal) operator selects documents where the field value is not equal to the specified value. It will match 100 and also the document where the amount is null.",
+        },
+        {
+          part: 3,
+          question: "Q148. What does this query do?",
+          code: 'db.orders.aggregate([ {$group:{_id:null, total:{$sum:"$amount"}}} ]);',
+          options: [
+            "A. Counts docs",
+            "B. Returns total sum of amount",
+            "C. Returns average amount",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "This aggregation query groups all documents into a single group (`_id:null`) and uses the `$sum` accumulator to calculate the sum of the `amount` field across all documents in that group.",
+        },
+        {
+          part: 3,
+          question:
+            "Q149. What is the effect of `db.orders.find().sort({amount:1});`?",
+          options: [
+            "A. Ascending order of amount",
+            "B. Descending order",
+            "C. Random order",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "The `sort()` method orders the results. A value of `1` specifies ascending order, so this will sort the documents by amount from lowest to highest.",
+        },
+        {
+          part: 3,
+          question: "Q150. What is the effect of `db.orders.drop();`?",
+          options: [
+            "A. Drops one record",
+            "B. Drops entire collection",
+            "C. Drops only amount field",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "The `drop()` method removes an entire collection from the database, including all of its documents and indexes.",
+        },
+
+        // Part 4: Q151-200
+        {
+          part: 4,
+          question: "Q151. What is the output of `SELECT ABS(-25);`?",
+          options: ["A. -25", "B. 25", "C. Error", "D. NULL"],
+          correct: "B",
+          explanation:
+            "The `ABS()` function returns the absolute (non-negative) value of a number. The absolute value of -25 is 25.",
+        },
+        {
+          part: 4,
+          question: "Q152. What is the output of `SELECT UPPER('sql test');`?",
+          options: ["A. SQL TEST", "B. Sql Test", "C. sql test", "D. Error"],
+          correct: "A",
+          explanation:
+            "The `UPPER()` (or `UCASE()`) function converts all characters in a string to uppercase.",
+        },
+        {
+          part: 4,
+          question: "Q153. What is the output of `SELECT LOWER('MySQL');`?",
+          options: ["A. MYSQL", "B. mysql", "C. MySQL", "D. Error"],
+          correct: "B",
+          explanation:
+            "The `LOWER()` (or `LCASE()`) function converts all characters in a string to lowercase.",
+        },
+        {
+          part: 4,
+          question:
+            "Q154. What is the output of `SELECT INSTR('database', 'a');`?",
+          options: ["A. 1", "B. 2", "C. 3", "D. 0"],
+          correct: "B",
+          explanation:
+            "`INSTR(string, substring)` returns the 1-based index of the first occurrence of the substring. The first 'a' in 'database' is at the 2nd position.",
+        },
+        {
+          part: 4,
+          question:
+            "Q155. What is the output of `SELECT LOCATE('ba','database');`?",
+          options: ["A. 3", "B. 4", "C. 5", "D. 0"],
+          correct: "C",
+          explanation:
+            "`LOCATE(substring, string)` is similar to INSTR. It returns the 1-based index of the first occurrence of the substring. 'ba' starts at the 5th position in 'database'.",
+        },
+        {
+          part: 4,
+          question: "Q156. What is the output of `SELECT LPAD('5',3,'0');`?",
+          options: ["A. 5", "B. 005", "C. 50", "D. Error"],
+          correct: "B",
+          explanation:
+            "`LPAD(string, length, pad_string)` left-pads a string. It makes the string '5' a total length of 3 by adding '0's to the left.",
+        },
+        {
+          part: 4,
+          question: "Q157. What is the output of `SELECT RPAD('5',3,'0');`?",
+          options: ["A. 5", "B. 500", "C. 005", "D. Error"],
+          correct: "B",
+          explanation:
+            "`RPAD(string, length, pad_string)` right-pads a string. It makes the string '5' a total length of 3 by adding '0's to the right.",
+        },
+        {
+          part: 4,
+          question: "Q158. What is the output of `SELECT REPEAT('Hi',3);`?",
+          options: ["A. HiHi", "B. HiHiHi", "C. Hi3", "D. Error"],
+          correct: "B",
+          explanation:
+            "The `REPEAT()` function returns a string consisting of the original string repeated the specified number of times.",
+        },
+        {
+          part: 4,
+          question:
+            "Q159. What is the output of `SELECT FLOOR(15.9), CEIL(15.1);`?",
+          options: ["A. 15,15", "B. 15,16", "C. 16,16", "D. Error"],
+          correct: "B",
+          explanation:
+            "`FLOOR()` rounds a number down to the nearest integer (15). `CEIL()` or `CEILING()` rounds a number up to the nearest integer (16).",
+        },
+        {
+          part: 4,
+          question: "Q160. What is the output of `SELECT GREATEST(10,20,30);`?",
+          options: ["A. 10", "B. 20", "C. 30", "D. Error"],
+          correct: "C",
+          explanation:
+            "The `GREATEST()` function returns the largest value from a list of arguments.",
+        },
+        {
+          part: 4,
+          question: "Q161. What is the output of `SELECT LEAST(10,20,30);`?",
+          options: ["A. 10", "B. 20", "C. 30", "D. Error"],
+          correct: "A",
+          explanation:
+            "The `LEAST()` function returns the smallest value from a list of arguments.",
+        },
+        {
+          part: 4,
+          question:
+            "Q162. What is the output of `SELECT IF(10>5, 'YES', 'NO');`?",
+          options: ["A. YES", "B. NO", "C. Error", "D. NULL"],
+          correct: "A",
+          explanation:
+            "`IF(condition, value_if_true, value_if_false)` evaluates the condition. Since 10 > 5 is true, it returns the second argument, 'YES'.",
+        },
+        {
+          part: 4,
+          question:
+            "Q163. What is the output of `SELECT CASE WHEN NULL IS NULL THEN 'TRUE' ELSE 'FALSE' END;`?",
+          options: ["A. TRUE", "B. FALSE", "C. NULL", "D. Error"],
+          correct: "A",
+          explanation:
+            "The `IS NULL` operator correctly evaluates if a value is NULL. The condition `NULL IS NULL` is true, so the `CASE` statement returns 'TRUE'.",
+        },
+        {
+          part: 4,
+          question: "Q164. What happens on the second insert?",
+          code: "CREATE TABLE test (id INT UNIQUE, name VARCHAR(20));\nINSERT INTO test VALUES (1,'A');\nINSERT INTO test VALUES (1,'B');",
+          options: [
+            "A. Both rows inserted",
+            "B. Only 1 inserted",
+            "C. Error on second insert",
+            "D. Both rejected",
+          ],
+          correct: "C",
+          explanation:
+            "The `UNIQUE` constraint on the `id` column prevents duplicate values. The first insert succeeds, but the second insert attempts to add another row with `id=1`, violating the constraint and causing an error.",
+        },
+        {
+          part: 4,
+          question: "Q165. What is the output?",
+          code: "CREATE TABLE test2 (id INT DEFAULT 10);\nINSERT INTO test2 VALUES ();\nSELECT id FROM test2;",
+          options: ["A. NULL", "B. 0", "C. 10", "D. Error"],
+          correct: "C",
+          explanation:
+            "The `DEFAULT` constraint specifies a default value for a column when no value is provided. The empty `INSERT` statement causes the default value of 10 to be used for the `id`.",
+        },
+        {
+          part: 4,
+          question:
+            "Q166. If salaries = [5000, NULL, 7000], what is the result of `SELECT * FROM emp WHERE salary IS NOT NULL;`?",
+          options: ["A. 5000,7000", "B. Only NULL", "C. 5000 only", "D. Error"],
+          correct: "A",
+          explanation:
+            "The `IS NOT NULL` condition filters out any rows where the salary column is NULL, returning only the rows with actual salary values.",
+        },
+        {
+          part: 4,
+          question:
+            "Q167. What is the effect of `SELECT salary FROM emp ORDER BY salary DESC LIMIT 1;`?",
+          options: [
+            "A. Minimum salary",
+            "B. Maximum salary",
+            "C. All salaries",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "`ORDER BY salary DESC` sorts salaries from highest to lowest. `LIMIT 1` then selects only the first row from that sorted result, which is the maximum salary.",
+        },
+        {
+          part: 4,
+          question:
+            "Q168. What is the effect of `SELECT salary FROM emp ORDER BY salary ASC LIMIT 1;`?",
+          options: [
+            "A. Minimum salary",
+            "B. Maximum salary",
+            "C. All salaries",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "`ORDER BY salary ASC` sorts salaries from lowest to highest. `LIMIT 1` then selects only the first row from that sorted result, which is the minimum salary.",
+        },
+        {
+          part: 4,
+          question:
+            "Q169. If salaries = [5000, 5000, 7000], what is the output of `SELECT COUNT(DISTINCT salary) FROM emp;`?",
+          options: ["A. 1", "B. 2", "C. 3", "D. Error"],
+          correct: "B",
+          explanation:
+            "`COUNT(DISTINCT column)` counts the number of unique non-NULL values in the column. The unique salaries are 5000 and 7000, so the count is 2.",
+        },
+        {
+          part: 4,
+          question: "Q170. What is the final result?",
+          code: "START TRANSACTION;\nUPDATE emp SET salary=salary+1000 WHERE id=1;\nROLLBACK;",
+          options: [
+            "A. Salary updated",
+            "B. Salary unchanged",
+            "C. Error",
+            "D. Data deleted",
+          ],
+          correct: "B",
+          explanation:
+            "`ROLLBACK` undoes all the changes made since the beginning of the transaction. The `UPDATE` is discarded, and the salary remains unchanged.",
+        },
+        {
+          part: 4,
+          question: "Q171. What is the final result?",
+          code: "START TRANSACTION;\nUPDATE emp SET salary=salary+500 WHERE id=2;\nCOMMIT;",
+          options: [
+            "A. Change discarded",
+            "B. Change saved",
+            "C. Error",
+            "D. No effect",
+          ],
+          correct: "B",
+          explanation:
+            "`COMMIT` permanently saves all changes made during the transaction to the database.",
+        },
+        {
+          part: 4,
+          question: "Q172. What is the effect of the ROLLBACK?",
+          code: "SAVEPOINT A;\nUPDATE emp SET salary=0 WHERE id=3;\nROLLBACK TO A;",
+          options: [
+            "A. Salary=0 remains",
+            "B. Salary restored",
+            "C. Error",
+            "D. All data deleted",
+          ],
+          correct: "B",
+          explanation:
+            "`ROLLBACK TO A` undoes the changes made after `SAVEPOINT A` was declared. The update that set the salary to 0 is reversed, and the original salary is restored.",
+        },
+        {
+          part: 4,
+          question:
+            "Q173. What is the effect of `CREATE VIEW emp_view AS SELECT name, salary FROM emp;`?",
+          options: [
+            "A. Creates table",
+            "B. Creates view",
+            "C. Error",
+            "D. Deletes data",
+          ],
+          correct: "B",
+          explanation:
+            "This syntax creates a view, which is a virtual table based on the result-set of an SQL statement. It does not store data itself but displays data from the underlying table.",
+        },
+        {
+          part: 4,
+          question: "Q174. What is the effect of `DROP VIEW emp_view;`?",
+          options: [
+            "A. Deletes table",
+            "B. Deletes view",
+            "C. Error",
+            "D. No effect",
+          ],
+          correct: "B",
+          explanation:
+            "The `DROP VIEW` command is used to delete a view from the database. It does not affect the data in the underlying base table.",
+        },
+        {
+          part: 4,
+          question:
+            "Q175. If the view was dropped earlier, what is the output of `SELECT * FROM emp_view;`?",
+          options: [
+            "A. Data displayed",
+            "B. Error",
+            "C. Empty result",
+            "D. NULL",
+          ],
+          correct: "B",
+          explanation:
+            "Attempting to select from a view that no longer exists will result in an error, as the database object cannot be found.",
+        },
+        {
+          part: 4,
+          question: "Q176. What is the effect?",
+          code: 'db.users.insertOne({name:"Ali", age:null});\ndb.users.find({age:null});',
+          options: [
+            "A. Returns Ali",
+            "B. Returns nothing",
+            "C. Error",
+            "D. Only _id",
+          ],
+          correct: "A",
+          explanation:
+            "The query `{age:null}` will find documents where the `age` field has a value of `null`, as well as documents that do not have the `age` field at all. In this case, it finds the inserted document.",
+        },
+        {
+          part: 4,
+          question:
+            "Q177. What is the effect of `db.users.find({age:{$eq:null}});`?",
+          options: [
+            "A. Same as age:null",
+            "B. Different result",
+            "C. Error",
+            "D. None",
+          ],
+          correct: "A",
+          explanation:
+            "Using the `$eq` operator for a `null` value (`{$eq: null}`) is equivalent to the simpler syntax (`{age: null}`). Both queries will produce the same result.",
+        },
+        {
+          part: 4,
+          question:
+            "Q178. What is the effect of `db.users.find({age:{$type:'null'}});`?",
+          options: [
+            "A. Finds docs with null age",
+            "B. Finds all docs",
+            "C. Error",
+            "D. None",
+          ],
+          correct: "A",
+          explanation:
+            "The `$type` operator selects documents where a field's value is of a specific BSON type. `{$type: 'null'}` specifically finds documents where the `age` field exists and its value is of the BSON null type.",
+        },
+        {
+          part: 4,
+          question: "Q179. What is the effect?",
+          code: 'db.users.updateMany({}, {$set:{status:"active"}});',
+          options: [
+            "A. Updates all docs",
+            "B. Updates none",
+            "C. Deletes all docs",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "`updateMany` with an empty filter `{}` matches all documents in the collection. The `$set` operator then adds or updates the `status` field to 'active' for every document.",
+        },
+        {
+          part: 4,
+          question: "Q180. What is the effect of `db.users.deleteMany({});`?",
+          options: [
+            "A. Deletes one doc",
+            "B. Deletes all docs",
+            "C. Deletes none",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "`deleteMany` with an empty filter `{}` matches all documents in the collection and deletes them, effectively clearing the collection.",
+        },
+        {
+          part: 4,
+          question:
+            "Q181. What is the effect of `db.users.aggregate([{$count:'total'}]);`?",
+          options: [
+            "A. Counts docs",
+            "B. Deletes docs",
+            "C. Updates docs",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "The `$count` aggregation stage is a simple way to count the number of documents at a certain point in the pipeline. It returns a single document with a field (in this case, 'total') containing the count.",
+        },
+        {
+          part: 4,
+          question:
+            "Q182. What is the effect of `db.users.aggregate([{$match:{status:'active'}}]);`?",
+          options: [
+            "A. Filters only active users",
+            "B. Deletes inactive",
+            "C. Updates active",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "The `$match` stage filters the documents, similar to the `find` method, allowing only documents where the `status` is 'active' to pass to the next stage of the aggregation pipeline.",
+        },
+        {
+          part: 4,
+          question: "Q183. What is the effect?",
+          code: 'db.users.aggregate([{$group:{_id:"$status", total:{$sum:1}}}]);',
+          options: [
+            "A. Groups by status",
+            "B. Groups by name",
+            "C. Groups by age",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "This aggregation groups all documents by the value in their `status` field. For each status group, it calculates the total number of documents (`$sum:1`).",
+        },
+        {
+          part: 4,
+          question: "Q184. What is the effect?",
+          code: "db.users.find({age:{$gte:18,$lte:25}});",
+          options: [
+            "A. Users 18–25 only",
+            "B. All users",
+            "C. None",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "This query finds documents where the `age` field is both greater than or equal to (`$gte`) 18 AND less than or equal to (`$lte`) 25. It selects users within the inclusive age range of 18 to 25.",
+        },
+        {
+          part: 4,
+          question:
+            "Q185. What is the effect of `db.users.find({name:/a$/i});`?",
+          options: [
+            "A. Names ending with 'a' (case insensitive)",
+            "B. Names starting with 'a'",
+            "C. Names containing 'a'",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "This uses a regular expression. `a$` matches the letter 'a' at the end of the string. The `i` option makes the match case-insensitive.",
+        },
+        {
+          part: 4,
+          question: "Q186. What is the effect?",
+          code: "db.users.createIndex({age:1, name:-1});",
+          options: [
+            "A. Compound index on age asc, name desc",
+            "B. Index on age only",
+            "C. Index on name only",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "This creates a compound index on two fields. It will first sort by `age` in ascending order (`1`) and then, for documents with the same age, it will sort by `name` in descending order (`-1`).",
+        },
+        {
+          part: 4,
+          question:
+            "Q187. What is the effect of `db.users.find().hint({age:1});`?",
+          options: [
+            "A. Forces index on age",
+            "B. Removes index",
+            "C. Error",
+            "D. Ignores query",
+          ],
+          correct: "A",
+          explanation:
+            "The `hint()` method forces the query planner to use a specific index. In this case, it instructs MongoDB to use the index on the `age` field to execute the find query.",
+        },
+        {
+          part: 4,
+          question: "Q188. What is the effect?",
+          code: "db.users.insertMany([{a:1},{a:1}]);\ndb.users.find({a:1}).count();",
+          options: ["A. 1", "B. 2", "C. 0", "D. Error"],
+          correct: "B",
+          explanation:
+            "Two documents are inserted, both with `a:1`. The `find({a:1})` query will match both of these documents. The `count()` method will then return the number of matched documents, which is 2.",
+        },
+        {
+          part: 4,
+          question:
+            "Q189. What is the effect of `db.users.find({a:{$in:[1,2]}});`?",
+          options: ["A. a=1 only", "B. a=2 only", "C. a=1 and 2", "D. None"],
+          correct: "C",
+          explanation:
+            "The `$in` operator selects documents where the value of a field equals any value in the specified array. This query will find all documents where `a` is either 1 or 2.",
+        },
+        {
+          part: 4,
+          question: "Q190. What is the effect?",
+          code: "db.users.aggregate([{$sort:{age:-1}}]);",
+          options: [
+            "A. Sort ascending",
+            "B. Sort descending",
+            "C. Random",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "`$sort` is an aggregation pipeline stage that orders the documents. A value of `-1` specifies descending order, sorting from highest to lowest age.",
+        },
+        {
+          part: 4,
+          question:
+            "Q191. What is the effect of `db.users.aggregate([{$limit:2}]);`?",
+          options: [
+            "A. Shows all",
+            "B. Shows 2 docs",
+            "C. Shows none",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "`$limit` is an aggregation stage that passes only the first `n` documents to the next stage. Here, it restricts the output to the first 2 documents it receives.",
+        },
+        {
+          part: 4,
+          question:
+            "Q192. What is the effect of `db.users.aggregate([{$skip:2}]);`?",
+          options: [
+            "A. Skips first 2 docs",
+            "B. Skips last 2 docs",
+            "C. Error",
+            "D. Shows all",
+          ],
+          correct: "A",
+          explanation:
+            "`$skip` is an aggregation stage that discards the first `n` documents. Here, it will ignore the first 2 documents and pass the rest to the next stage.",
+        },
+        {
+          part: 4,
+          question: "Q193. What is the effect?",
+          code: 'db.users.updateOne({name:"Ali"}, {$unset:{age:1}});',
+          options: [
+            "A. Removes age field",
+            "B. Sets age=1",
+            "C. Deletes doc",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "The `$unset` operator removes a particular field from a document. The value given (e.g., `1`) doesn't matter; the presence of the field in the `$unset` object is what causes it to be removed.",
+        },
+        {
+          part: 4,
+          question:
+            "Q194. What is the effect of `db.users.find({age:{$nin:[20,25]}});`?",
+          options: [
+            "A. Excludes age=20,25",
+            "B. Includes only 20,25",
+            "C. Error",
+            "D. None",
+          ],
+          correct: "A",
+          explanation:
+            "`$nin` (not in) selects documents where the field value is not in the specified array. This will find all users whose age is not 20 and not 25.",
+        },
+        {
+          part: 4,
+          question: "Q195. What is the effect?",
+          code: 'db.users.find({$or:[{age:20},{status:"active"}]});',
+          options: [
+            "A. Users with age 20 or active",
+            "B. Only active",
+            "C. Only age 20",
+            "D. None",
+          ],
+          correct: "A",
+          explanation:
+            "The `$or` operator performs a logical OR operation on an array of two or more expressions and selects the documents that satisfy at least one of the expressions.",
+        },
+        {
+          part: 4,
+          question: "Q196. What is the effect?",
+          code: 'db.users.find({$and:[{age:{$gte:18}},{status:"active"}]});',
+          options: [
+            "A. Both conditions true",
+            "B. Either condition true",
+            "C. None",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "The `$and` operator performs a logical AND operation. It selects documents that satisfy all the expressions in the array. This finds active users who are 18 or older.",
+        },
+        {
+          part: 4,
+          question:
+            "Q197. What is the effect of `db.users.find({name:{$regex:'^A'}});`?",
+          options: [
+            "A. Names starting with A",
+            "B. Names ending with A",
+            "C. Names containing A",
+            "D. None",
+          ],
+          correct: "A",
+          explanation:
+            "The `$regex` operator provides regular expression capabilities. `^A` is a regular expression that matches strings starting with the letter 'A'.",
+        },
+        {
+          part: 4,
+          question:
+            "Q198. What does `db.users.find({$text:{$search:'Ali'}});` require?",
+          options: [
+            "A. Text index on name field",
+            "B. Compound index",
+            "C. No index",
+            "D. Error",
+          ],
+          correct: "A",
+          explanation:
+            "To use the `$text` operator for text search, you must first create a `text` index on the field(s) you want to search. For example, `db.users.createIndex({name: 'text'})`.",
+        },
+        {
+          part: 4,
+          question:
+            "Q199. What is the effect of `db.users.dropIndex('age_1');`?",
+          options: [
+            "A. Drops collection",
+            "B. Drops index on age",
+            "C. Drops all indexes",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "`dropIndex()` removes a specific index from a collection. 'age_1' is the default name for an ascending index on the 'age' field.",
+        },
+        {
+          part: 4,
+          question: "Q200. What is the effect of `db.users.dropDatabase();`?",
+          options: [
+            "A. Drops users collection",
+            "B. Drops entire database",
+            "C. Drops only indexes",
+            "D. Error",
+          ],
+          correct: "B",
+          explanation:
+            "This command, when run from the `db` object of a specific database, will drop the entire current database, including all its collections and indexes. It is a highly destructive command.",
+        },
+      ];
+
+      // ---- VIEW MANAGEMENT ----
+      function switchView(viewName) {
+        Object.values(allViews).forEach(
+          (view) => (view.style.display = "none")
+        );
+        if (allViews[viewName]) {
+          allViews[viewName].style.display = "block";
+        }
+      }
+
+      // ---- EVENT LISTENERS ----
+      document.getElementById("start-btn").addEventListener("click", () => {
+        const name = document.getElementById("name").value.trim();
+        const mobile = document.getElementById("mobile").value.trim();
+        const errorEl = document.getElementById("start-error");
+
+        if (name === "" || mobile === "") {
+          errorEl.textContent = "Please fill in both name and mobile number.";
+          errorEl.style.display = "block";
+          return;
+        }
+        if (!/^\d{10,}$/.test(mobile)) {
+          errorEl.textContent =
+            "Please enter a valid mobile number (at least 10 digits).";
+          errorEl.style.display = "block";
+          return;
+        }
+
+        errorEl.style.display = "none";
+        currentUser.name = name;
+        document.getElementById(
+          "welcome-message"
+        ).textContent = `Welcome, ${currentUser.name}!`;
+        switchView("parts");
+      });
+
+      document.querySelectorAll(".part-btn").forEach((button) => {
+        button.addEventListener("click", (e) => {
+          const partNum = parseInt(e.target.dataset.part, 10);
+          loadPart(partNum);
+        });
+      });
+
+      document
+        .getElementById("show-score-btn")
+        .addEventListener("click", () => {
+          showSummary();
+        });
+
+      document
+        .getElementById("back-to-parts-btn")
+        .addEventListener("click", () => {
+          switchView("parts");
+        });
+
+      // ---- QUIZ LOGIC ----
+      function loadPart(partNum) {
+        currentPartNumber = partNum;
+        currentPartData = quizData.filter((q) => q.part === partNum);
+        currentScore = 0;
+        answeredQuestions = 0;
+
+        document.getElementById("quiz-title").textContent = `Part ${partNum}`;
+        document.getElementById("show-score-btn").style.display = "none";
+
+        buildQuiz(currentPartData);
+        updateProgress();
+        switchView("quiz");
+      }
+
+      function buildQuiz(questions) {
+        const quizEl = document.getElementById("quiz");
+        quizEl.innerHTML = ""; // Clear previous questions
+
+        questions.forEach((data, index) => {
+          const questionBlock = document.createElement("div");
+          questionBlock.classList.add("question-block");
+
+          const questionText = document.createElement("p");
+          questionText.classList.add("question-text");
+          questionText.innerText = data.question;
+          questionBlock.appendChild(questionText);
+
+          if (data.code) {
+            const codeBlock = document.createElement("pre");
+            codeBlock.innerText = data.code;
+            questionBlock.appendChild(codeBlock);
+          }
+
+          const optionsContainer = document.createElement("div");
+          optionsContainer.classList.add("options-container");
+
+          data.options.forEach((optionText) => {
+            const optionButton = document.createElement("button");
+            optionButton.classList.add("option");
+            optionButton.innerText = optionText;
+            const optionLetter = optionText.charAt(0);
+
+            optionButton.addEventListener("click", () => {
+              checkAnswer(optionLetter, data.correct, index);
+            });
+
+            optionsContainer.appendChild(optionButton);
+          });
+
+          questionBlock.appendChild(optionsContainer);
+
+          const explanation = document.createElement("div");
+          explanation.classList.add("explanation");
+          explanation.innerText = data.explanation;
+          questionBlock.appendChild(explanation);
+
+          quizEl.appendChild(questionBlock);
+        });
+      }
+
+      function checkAnswer(selected, correct, questionIndex) {
+        const questionBlock =
+          document.getElementById("quiz").children[questionIndex];
+        const options = questionBlock.querySelectorAll(".option");
+        const explanation = questionBlock.querySelector(".explanation");
+
+        // Prevent re-answering
+        if (options[0].disabled) return;
+
+        if (selected === correct) {
+          currentScore++;
+        }
+
+        options.forEach((option) => {
+          const optionLetter = option.innerText.charAt(0);
+
+          if (optionLetter === selected) {
+            option.classList.add(
+              selected === correct ? "correct" : "incorrect"
+            );
+          }
+          if (optionLetter === correct) {
+            option.classList.add("correct");
+          }
+
+          option.disabled = true;
+        });
+
+        explanation.style.display = "block";
+        answeredQuestions++;
+        updateProgress();
+
+        if (answeredQuestions === currentPartData.length) {
+          document.getElementById("show-score-btn").style.display = "block";
+        }
+      }
+
+      function updateProgress() {
+        document.getElementById(
+          "progress-text"
+        ).textContent = `Answered: ${answeredQuestions} / ${currentPartData.length}`;
+      }
+
+      function showSummary() {
+        const percentage = (
+          (currentScore / currentPartData.length) *
+          100
+        ).toFixed(1);
+        const summaryTextEl = document.getElementById("summary-text");
+        summaryTextEl.innerHTML = `Hi ${currentUser.name}, your performance for <strong>Part ${currentPartNumber}</strong> is:<br><br>
+                                       <strong>Score:</strong> ${currentScore} out of ${currentPartData.length}<br>
+                                       <strong>Percentage:</strong> ${percentage}%`;
+        switchView("summary");
+      }
+    </script>
+  </body>
+</html>
